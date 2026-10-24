@@ -256,40 +256,71 @@ function dist(a,b){
   return Math.hypot(a.x-b.x,a.y-b.y);
 }
 
-function classify(l){
-  const fingers=[
-    [8,6,5],
-    [12,10,9],
-    [16,14,13],
-    [20,18,17]
-  ];
 
-  const ext=fingers.map(
-    ([tip,pip,mcp])=>
-      dist(l[tip],l[mcp])>dist(l[pip],l[mcp])*1.30
+function classify(l) {
+  const d = (a, b) => Math.hypot(
+    l[a].x - l[b].x,
+    l[a].y - l[b].y
   );
 
-  const n=ext.filter(Boolean).length;
-  const width=Math.max(dist(l[5],l[17]),.04);
-  const pinch=dist(l[4],l[8])/width;
+  const palmSize = Math.max(d(0, 9), 0.06);
 
-  if(pinch<.32){
-    return {name:'pinch',details:'pinch='+pinch.toFixed(2)+' fingers='+n};
+  // 根据手指尖到手腕、关节的距离判断伸展
+  function extended(tip, pip, mcp) {
+    const wristRatio = d(tip, 0) / Math.max(d(pip, 0), 0.001);
+    const jointRatio = d(tip, mcp) / Math.max(d(pip, mcp), 0.001);
+    return wristRatio > 1.08 && jointRatio > 1.12;
   }
-  if(n>=4){
-    return {name:'palm',details:'extended='+n};
+
+  const index = extended(8, 6, 5);
+  const middle = extended(12, 10, 9);
+  const ring = extended(16, 14, 13);
+  const pinky = extended(20, 18, 17);
+
+  const fingers = [index, middle, ring, pinky];
+  const openCount = fingers.filter(Boolean).length;
+
+  // 捏合：优先于其他手势判断
+  const pinchRatio = d(4, 8) / palmSize;
+
+  if (pinchRatio < 0.48) {
+    return {
+      name: 'pinch',
+      details: 'pinch=' + pinchRatio.toFixed(2)
+    };
   }
-  if(ext[0]&&!ext[1]&&!ext[2]&&!ext[3]){
-    return {name:'point',details:'index extended'};
+
+  // 指向：食指伸直，其他手指最多一根被误判
+  if (index && [middle, ring, pinky].filter(Boolean).length <= 1) {
+    return {
+      name: 'point',
+      details: 'index extended'
+    };
   }
-  if(n===0){
-    return {name:'fist',details:'folded=4'};
+
+  // 握拳：最多允许一根手指误判伸直
+  if (openCount <= 1 && !index) {
+    return {
+      name: 'fist',
+      details: 'folded fingers'
+    };
   }
+
+  // 张掌
+  if (openCount >= 3) {
+    return {
+      name: 'palm',
+      details: 'open fingers=' + openCount
+    };
+  }
+
   return {
-    name:null,
-    details:'extended='+n+' pinch='+pinch.toFixed(2)
+    name: null,
+    details: 'open=' + openCount +
+             ' pinch=' + pinchRatio.toFixed(2)
   };
 }
+
 
 function loadScript(url,timeout=18000){
   return new Promise((resolve,reject)=>{
@@ -433,7 +464,7 @@ function track(){
           reading.details+
           '\n识别帧：'+detected;
 
-        if(g&&count>=5&&performance.now()-lastAt>1300){
+        if(g && count >= 3 && performance.now() - lastAt > 900){
           action(g);
           lastAt=performance.now();
           debug.textContent+='\n✓ 已触发花园动画';
