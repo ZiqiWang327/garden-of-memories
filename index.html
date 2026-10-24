@@ -315,27 +315,26 @@ function loadScript(url,timeout=18000){
   });
 }
 
-async function loadVision(){
-  if(window.vision?.HandLandmarker)return window.vision;
-  if(window.MediaPipeTasksVision?.HandLandmarker){
-    return window.MediaPipeTasksVision;
-  }
 
-  const url=new URL(
-    './mediapipe/vision_bundle.js',
+async function loadVision() {
+  const url = new URL(
+    './mediapipe/vision_bundle.mjs',
     document.baseURI
   ).href;
 
-  debug.textContent='正在加载手势引擎…\n'+url;
-  await loadScript(url);
+  debug.textContent = '正在加载 MediaPipe ES Module…';
 
-  if(window.vision?.HandLandmarker)return window.vision;
-  if(window.MediaPipeTasksVision?.HandLandmarker){
-    return window.MediaPipeTasksVision;
+  const mp = await import(url);
+
+  if (!mp.HandLandmarker || !mp.FilesetResolver) {
+    throw new Error('MediaPipe 模块缺少 HandLandmarker 或 FilesetResolver');
   }
 
-  throw new Error('脚本已加载，但未找到 HandLandmarker');
+  debug.textContent = 'MediaPipe 模块加载成功';
+
+  return mp;
 }
+
 
 async function start(){
   const b=document.querySelector('#start');
