@@ -1,1 +1,1 @@
-V4 修复 Safari 上 Importing a module script failed：改用 MediaPipe vision_bundle.js（带备用 CDN），显示各加载阶段。上传 index.html 替换仓库根目录文件；打开网址?v=4 并刷新。注意需联网访问 CDN 和 Google 模型。尚未在实际 iPhone 上验证。
+V5: MediaPipe 引擎本地托管版。先在 Windows 解压本 ZIP，在文件夹里右键 download_assets.ps1 用 PowerShell 运行；如无法运行，在 PowerShell 中进入文件夹执行： powershell -ExecutionPolicy Bypass -File .\download_assets.ps1 。脚本下载 6 个依赖文件到 mediapipe 文件夹（需要电脑能连接 jsDelivr 和 Google Storage）。完成后把 index.html 和整个 mediapipe 文件夹上传 GitHub 仓库根目录，不能只上传 ZIP。部署后在手机打开 ?v=5。注意：本环境无法联网下载这 6 个资源，所以压缩包不包含它们；下载成功后才能使用摄像头手势识别。
