@@ -1,1 +1,1 @@
-手机端三维纪念花园原型。请部署到 HTTPS（如 GitHub Pages/Netlify），用手机 Safari/Chrome 访问并授权摄像头。需要联网加载 Three.js 和 MediaPipe。四种手势：张掌/捏合/指向/握拳。底部按钮可模拟。此原型尚未在真实手机设备上验证。
+V4 修复 Safari 上 Importing a module script failed：改用 MediaPipe vision_bundle.js（带备用 CDN），显示各加载阶段。上传 index.html 替换仓库根目录文件；打开网址?v=4 并刷新。注意需联网访问 CDN 和 Google 模型。尚未在实际 iPhone 上验证。
