@@ -1,0 +1,1 @@
+手机端三维纪念花园原型。请部署到 HTTPS（如 GitHub Pages/Netlify），用手机 Safari/Chrome 访问并授权摄像头。需要联网加载 Three.js 和 MediaPipe。四种手势：张掌/捏合/指向/握拳。底部按钮可模拟。此原型尚未在真实手机设备上验证。
